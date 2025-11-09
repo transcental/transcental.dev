@@ -1,6 +1,6 @@
 from slack_bolt.async_app import AsyncApp
 
-from app.views.hello_world import hello_world_handler
+from transcental.views.hello_world import hello_world_handler
 
 
 VIEWS = [

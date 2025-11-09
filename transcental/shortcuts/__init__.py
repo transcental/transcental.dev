@@ -1,6 +1,6 @@
 from slack_bolt.async_app import AsyncApp
 
-from app.shortcuts.hello_world import hello_world_handler
+from transcental.shortcuts.hello_world import hello_world_handler
 
 
 SHORTCUTS = [

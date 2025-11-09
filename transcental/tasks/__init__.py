@@ -2,8 +2,8 @@ from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.config import config
-from app.tasks.task import task
+from transcental.config import config
+from transcental.tasks.task import task
 
 
 def register_tasks():

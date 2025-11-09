@@ -3,18 +3,19 @@ import logging
 from time import time
 
 from aiohttp import ClientSession
+from homeassistant_api import Client
 from slack_bolt.async_app import AsyncApp
 from slack_sdk.web.async_client import AsyncWebClient
 from starlette.applications import Starlette
 
-from app.actions import register_actions
-from app.commands import register_commands
-from app.config import config
-from app.events import register_events
-from app.shortcuts import register_shortcuts
-from app.tasks import register_tasks
-from app.utils.logging import send_heartbeat
-from app.views import register_views
+from transcental.actions import register_actions
+from transcental.commands import register_commands
+from transcental.config import config
+from transcental.events import register_events
+from transcental.shortcuts import register_shortcuts
+from transcental.tasks import register_tasks
+from transcental.utils.logging import send_heartbeat
+from transcental.views import register_views
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ class Environment:
     app = AsyncApp(
         token=config.slack.bot_token, signing_secret=config.slack.signing_secret
     )
+    home = Client(f"{config.home_assistant.url}/api", config.home_assistant.token, use_async=True)
 
     @contextlib.asynccontextmanager
     async def enter(self, _app: Starlette):

@@ -10,25 +10,56 @@ from slack_bolt.async_app import AsyncRespond
 from slack_sdk.errors import SlackApiError
 from slack_sdk.web.async_client import AsyncWebClient
 
-from app.commands.world import world_handler
-from app.config import config
+from transcental.commands.ha import home_assistant_handler
+from transcental.commands.world import world_handler
+from transcental.config import config
 
-PREFIX = "hello"  # the main command!
+PREFIX = "transcental"  # the main command!
 
 COMMANDS = [
     {
-        "name": "world",
-        "description": "hello world!",
+        "name": "song",
+        "description": "set a song to be displayed",
         "function": world_handler,
         "parameters": [
             {
-                "name": "user",
-                "type": "string",
+                "name": "action",
+                "type": "choice",
                 "description": "anything!",
-                "default": ":3",
+                "choices": [
+                    {
+                        
+                    }
+                ]
             },
         ],
     },
+    {
+        "name": "ha",
+        "description": "control home assistant devices",
+        "function": home_assistant_handler,
+        "parameters": [
+            {
+                "name": "entity",
+                "type": "string",
+                "description": "the entity id to control (e.g. `light.bedroom_light`)",
+                "required": True,
+            },
+            {
+                "name": "action",
+                "type": "choice",
+                "description": "the action to perform",
+                "choices": ["on", "off", "toggle", "temperature", "colour", "brightness", "raw"],
+                "required": True,
+            },
+            {
+                "name": "value",
+                "type": "string",
+                "description": "an optional value for the action",
+                "required": False,
+            }
+        ]
+    }
 ]
 
 

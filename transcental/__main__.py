@@ -3,7 +3,7 @@ import logging
 
 import uvicorn
 
-from app.config import config
+from transcental.config import config
 
 try:
     import uvloop
@@ -17,7 +17,7 @@ logging.basicConfig(level="DEBUG" if config.environment != "production" else "IN
 
 def start():
     uvicorn.run(
-        "app.utils.starlette:app",
+        "transcental.utils.starlette:app",
         host="0.0.0.0",
         port=config.port,
         log_level="info" if config.environment != "production" else "warning",

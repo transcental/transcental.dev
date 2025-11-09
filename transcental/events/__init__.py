@@ -1,6 +1,6 @@
 from slack_bolt.async_app import AsyncApp
 
-from app.events.message import message_handler
+from transcental.events.message import message_handler
 
 
 EVENTS = [

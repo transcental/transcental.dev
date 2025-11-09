@@ -1,17 +1,23 @@
 import logging
+from pathlib import Path
 
 from slack_bolt.adapter.starlette.async_handler import AsyncSlackRequestHandler
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
+from starlette.templating import Jinja2Templates
+from starlette.staticfiles import StaticFiles
 
-from app.config import config
-from app.env import env
+from transcental.config import config
+from transcental.env import env
 
 logger = logging.getLogger(__name__)
 
 req_handler = AsyncSlackRequestHandler(env.app)
+TEMPLATE_DIR = Path(Path.cwd() / config.starlette.directory / "templates")
+STATIC_DIR = Path(Path.cwd() / config.starlette.directory / "static")
+templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
 
 async def endpoint(req: Request):
@@ -32,12 +38,17 @@ async def health(req: Request):
         }
     )
 
+async def index(req: Request):
+    return templates.TemplateResponse(req, 'index.html')
+
 
 app = Starlette(
     debug=True if config.environment != "production" else False,
     routes=[
+        Route(path="/", endpoint=index, methods=["GET"]),
         Route(path="/slack/events", endpoint=endpoint, methods=["POST"]),
         Route(path="/health", endpoint=health, methods=["GET"]),
+        Mount('/static', app=StaticFiles(directory=STATIC_DIR), name="static")
     ],
     lifespan=env.enter,
 )

@@ -2,7 +2,7 @@ from slack_bolt.async_app import AsyncAck
 from slack_bolt.async_app import AsyncRespond
 from slack_sdk.web.async_client import AsyncWebClient
 
-from app.views.hello_world import get_hello_world_view
+from transcental.views.hello_world import get_hello_world_view
 
 
 async def hello_world_handler(

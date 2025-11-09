@@ -1,29 +1,16 @@
 {
     "display_information": {
-        "name": "Template"
+        "name": "dev.transcental.dev"
     },
     "features": {
         "bot_user": {
-            "display_name": "Template",
+            "display_name": "dev.transcental.dev",
             "always_online": false
         },
-        "shortcuts": [
-            {
-                "name": "Hello World!",
-                "type": "global",
-                "callback_id": "hello_world",
-                "description": "Hi there"
-            }
-        ],
         "slash_commands": [
             {
-                "command": "/hello",
-                "description": "world!",
-                "should_escape": true
-            },
-            {
-                "command": "/dev-hello",
-                "description": "dev world",
+                "command": "/dev-transcental",
+                "description": ":3",
                 "should_escape": true
             }
         ]
@@ -39,12 +26,6 @@
         }
     },
     "settings": {
-        "event_subscriptions": {
-            "bot_events": [
-                "message.channels",
-                "message.groups"
-            ]
-        },
         "interactivity": {
             "is_enabled": true
         },

@@ -8,7 +8,17 @@ class SlackConfig(BaseSettings):
     signing_secret: str
     maintainer_id: str
     app_token: str | None = None
+    whitelist_channel: str
     heartbeat_channel: str | None = None
+
+
+class StarletteConfig(BaseSettings):
+    directory: str
+
+
+class HomeAssistantConfig(BaseSettings):
+    url: str
+    token: str
 
 
 class Config(BaseSettings):
@@ -16,6 +26,8 @@ class Config(BaseSettings):
         env_file=".env", env_nested_delimiter="__", extra="ignore"
     )
     slack: SlackConfig
+    home_assistant: HomeAssistantConfig
+    starlette: StarletteConfig
     database_url: PostgresDsn
     environment: str = "development"
     timezone: str = "Europe/London"

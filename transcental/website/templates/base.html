@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% block head %}
+	<title>{% block title %}{% endblock %} - amber's abode</title>
+	{% endblock %}
+	<style>
+	body {
+	    font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+        position: relative;
+        min-height: 100vh;
+        overflow-x: hidden;
+        width: 100vw;
+	}
+	nav {
+	    background-color: #78350f;
+        color: white;
+        padding: 10px;
+        display: flex;
+	}
+	nav a {
+        color: white
+        text-decoration: none;
+        margin: 0 10px;
+    }
+    nav a:hover {
+        text-decoration: underline;
+
+    }
+
+	.light {
+		width: 50%;
+		margin: auto;
+        z-index: -1;
+        opacity: 0.1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        object {
+            rotate: 180deg;
+        }
+      }
+	</style>
+</head>
+<body>
+    {% block navbar %}
+    <nav>
+        <div style="flex-grow: 1;">
+        <a href="/"><strong>amber's abode</strong></a>
+        <a href="/projects">Projects</a>
+        <a href="/gallery">Photography</a>
+        <a href="/contact">Contact</a>
+        <a href="/contact">Blog</a>
+        </div>
+        <div style="text-align: right;">
+        <a href="https://github.com/transcental" target="_blank">GitHub</a>
+        </div>
+    </nav>
+    {% endblock %}
+    <div class="light">
+        <object type="image/svg+xml" data="/static/light.svg" ></object>
+    </div>
+    {% block content %}
+	<h1>hiii</h1>
+	<p>this is template content, you probably want to chnge this!</p>
+	{% endblock %}
+</body>
+</html>

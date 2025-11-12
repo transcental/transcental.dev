@@ -26,11 +26,7 @@ COMMANDS = [
                 "name": "action",
                 "type": "choice",
                 "description": "anything!",
-                "choices": [
-                    {
-                        
-                    }
-                ]
+                "choices": [{}],
             },
         ],
     },
@@ -49,7 +45,15 @@ COMMANDS = [
                 "name": "action",
                 "type": "choice",
                 "description": "the action to perform",
-                "choices": ["on", "off", "toggle", "temperature", "colour", "brightness", "raw"],
+                "choices": [
+                    "on",
+                    "off",
+                    "toggle",
+                    "temperature",
+                    "colour",
+                    "brightness",
+                    "raw",
+                ],
                 "required": True,
             },
             {
@@ -57,9 +61,9 @@ COMMANDS = [
                 "type": "string",
                 "description": "an optional value for the action",
                 "required": False,
-            }
-        ]
-    }
+            },
+        ],
+    },
 ]
 
 

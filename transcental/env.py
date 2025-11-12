@@ -1,9 +1,12 @@
+import asyncio
 import contextlib
 import logging
+from threading import Thread
 from time import time
 
 from aiohttp import ClientSession
 from homeassistant_api import Client
+from homeassistant_api import WebsocketClient
 from slack_bolt.async_app import AsyncApp
 from slack_sdk.web.async_client import AsyncWebClient
 from starlette.applications import Starlette
@@ -14,6 +17,7 @@ from transcental.config import config
 from transcental.events import register_events
 from transcental.shortcuts import register_shortcuts
 from transcental.tasks import register_tasks
+from transcental.utils.light import update_light
 from transcental.utils.logging import send_heartbeat
 from transcental.views import register_views
 
@@ -26,7 +30,17 @@ class Environment:
     app = AsyncApp(
         token=config.slack.bot_token, signing_secret=config.slack.signing_secret
     )
-    home = Client(f"{config.home_assistant.url}/api", config.home_assistant.token, use_async=True)
+    home = Client(
+        f"http://{config.home_assistant.url}/api",
+        config.home_assistant.token,
+        use_async=True,
+    )
+    ws_home = WebsocketClient(
+        f"ws://{config.home_assistant.url}/api/websocket", config.home_assistant.token
+    )
+
+    update_queue: asyncio.Queue
+    loop: asyncio.AbstractEventLoop
 
     @contextlib.asynccontextmanager
     async def enter(self, _app: Starlette):
@@ -34,6 +48,8 @@ class Environment:
         logger.debug("Entering environment context")
         self.http = ClientSession()
         self.slack_client = AsyncWebClient(token=config.slack.bot_token)
+        self.loop = asyncio.get_running_loop()
+        self.update_queue = asyncio.Queue()
 
         handler = None
         if config.slack.app_token:
@@ -49,6 +65,7 @@ class Environment:
             logger.debug("Starting Socket Mode handler")
             await handler.connect_async()
 
+        Thread(target=update_light, args=(self.ws_home, self), daemon=True).start()
         register_commands(env.app)
         register_shortcuts(env.app)
         register_actions(env.app)

@@ -3,13 +3,16 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import Any, Dict, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 
-from slack_bolt.async_app import AsyncAck, AsyncRespond
+from slack_bolt.async_app import AsyncAck
+from slack_bolt.async_app import AsyncRespond
 from slack_sdk.web.async_client import AsyncWebClient
 
-from transcental.utils.logging import send_heartbeat
 from transcental.config import config
+from transcental.utils.logging import send_heartbeat
 
 logger = logging.getLogger(__name__)
 
@@ -23,24 +26,16 @@ async def home_assistant_handler(
     action: str,
     value: Optional[str] = None,
 ) -> None:
-    """
-    Robust Home Assistant Slack command handler.
-
-    Changes / fixes:
-    - Ensures `service_data` is always a dict or omitted.
-    - Parses brightness, temperature, hex colors, rgb/rgbw/rgbww forms safely.
-    - Implements a `raw` mode that expects: "<service> <json-dict>" and validates JSON.
-    - Adds error responses and logging around the HA service call to make debugging easier.
-    """
-    from transcental.env import env  # imported lazily to match original pattern
+    from transcental.env import env
 
     await ack()
-    
-    channel_info = await client.conversations_members(channel=config.slack.whitelist_channel)
-    if not performer in channel_info.get("members", []):
+
+    channel_info = await client.conversations_members(
+        channel=config.slack.whitelist_channel
+    )
+    if performer not in channel_info.get("members", []):
         await respond("You are not authorized to use this command.")
         return
-    
 
     domain = entity.split(".")[0]
     raw_value = value.strip() if value is not None else None
@@ -51,23 +46,19 @@ async def home_assistant_handler(
     async def call_service(
         svc: str, svc_data: Optional[Dict[str, Any]] = None
     ) -> Optional[str]:
-        """Helper to call the HA async_trigger_service and return optional error text."""
         try:
             if svc_data:
                 await env.home.async_trigger_service(
                     domain, svc, entity_id=entity, **svc_data
                 )
             else:
-                await env.home.async_trigger_service(
-                    domain, svc, entity_id=entity
-                )
+                await env.home.async_trigger_service(domain, svc, entity_id=entity)
             return None
-        except Exception as exc:  # capture any error from underlying HA client
+        except Exception as exc:
             msg = f"Home Assistant service call failed: {exc!s}"
             logger.exception(msg)
             return msg
 
-    # Normalize action to lowercase for matching but preserve raw_value casing where relevant
     act = action.lower()
 
     if act in ("toggle", "on", "off"):
@@ -120,7 +111,9 @@ async def home_assistant_handler(
 
     elif act in ("colour", "color"):
         if raw_value is None:
-            await respond("Colour command requires a value (e.g. #RRGGBB, rgb(255,0,0), rgbw(...), red).")
+            await respond(
+                "Colour command requires a value (e.g. #RRGGBB, rgb(255,0,0), rgbw(...), red)."
+            )
             return
 
         ha_value: Optional[Dict[str, Any]] = None
@@ -138,7 +131,9 @@ async def home_assistant_handler(
                 return
         else:
             # Match forms: rgb(...), rgbw(...), rgbww(...)
-            m = re.match(r"^(?P<name>rgbw?w?)\s*\(\s*(?P<body>.+)\s*\)\s*$", v, flags=re.I)
+            m = re.match(
+                r"^(?P<name>rgbw?w?)\s*\(\s*(?P<body>.+)\s*\)\s*$", v, flags=re.I
+            )
             if m:
                 name = m.group("name").lower()
                 parts = [p.strip() for p in m.group("body").split(",")]
@@ -157,7 +152,9 @@ async def home_assistant_handler(
                 elif name == "rgbww" and len(nums) == 5:
                     ha_value = {"rgbww_color": nums}
                 else:
-                    await respond(f"Invalid {name} format or wrong number of components: {v}")
+                    await respond(
+                        f"Invalid {name} format or wrong number of components: {v}"
+                    )
                     return
             else:
                 # Fallback to color name (string). Home Assistant accepts `color_name`.
@@ -173,7 +170,9 @@ async def home_assistant_handler(
     elif act == "raw":
         # Expect: "<service> <json-object>" or just "<service>" (no service_data)
         if raw_value is None:
-            await respond("Raw command requires a service name, optionally followed by JSON service_data.")
+            await respond(
+                "Raw command requires a service name, optionally followed by JSON service_data."
+            )
             return
         parts = raw_value.split(" ", 1)
         svc = parts[0]
@@ -205,7 +204,9 @@ async def home_assistant_handler(
 
     # Success response
     display_value = raw_value if raw_value is not None else ""
-    msg = f"Performed {action} on {entity}{f" with `{display_value}`" if display_value else ""}"
+    msg = f"Performed {action} on {entity}{f' with `{display_value}`' if display_value else ''}"
 
     await respond(msg)
-    await send_heartbeat(f"<@{performer}> {msg}", channel=config.slack.whitelist_channel)
+    await send_heartbeat(
+        f"<@{performer}> {msg}", channel=config.slack.whitelist_channel
+    )

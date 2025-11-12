@@ -11,8 +11,8 @@
 	    font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
-        background-color: #f4f4f4;
-        color: #333;
+        background-color: #1e1e1e;
+        color: #f0f0f0;
         position: relative;
         min-height: 100vh;
         overflow-x: hidden;
@@ -25,21 +25,20 @@
         display: flex;
 	}
 	nav a {
-        color: white
+        color: white;
         text-decoration: none;
         margin: 0 10px;
     }
     nav a:hover {
         text-decoration: underline;
-
     }
 
 	.light {
 		width: 50%;
 		margin: auto;
         z-index: -1;
-        opacity: 0.1;
         position: absolute;
+        opacity: 1;
         top: 0;
         left: 0;
         right: 0;
@@ -48,8 +47,8 @@
         flex-direction: column;
         justify-content: start;
         align-items: center;
-        object {
-            rotate: 180deg;
+        & object {
+            transform: rotate(180deg);
         }
       }
 	</style>
@@ -70,11 +69,46 @@
     </nav>
     {% endblock %}
     <div class="light">
-        <object type="image/svg+xml" data="/static/light.svg" ></object>
+        <object id="bulb" type="image/svg+xml" data="/static/light.svg" ></object>
     </div>
     {% block content %}
 	<h1>hiii</h1>
 	<p>this is template content, you probably want to chnge this!</p>
 	{% endblock %}
+	<script>
+     	const ws = new WebSocket("ws://" + window.location.host + "/ws");
+     	const lightObj = document.querySelector('#bulb');
+        let lightSvg = null;
+        let queuedColour = null;
+        
+        function applyColour(colour) {
+          if (lightSvg) {
+            try {
+              lightSvg.style.fill = colour;
+              return;
+            } catch (e) {
+              console.error("couldn't apply colour to svg", e);
+            }
+          }
+        }
+        
+        lightObj.addEventListener('load', () => {
+          lightSvg = lightObj.contentDocument.querySelector('svg');
+          if (queuedColour) {
+            applyColour(queuedColour);
+            queuedColour = null;
+          }
+        })
+        
+     	ws.onmessage = function(event) {
+       	    data = JSON.parse(event.data).light;
+            console.log(data);
+         	if (!lightSvg & !(lightObj.contentDocument)) {
+              queuedColour = data.colour;
+            } else {
+              applyColour(data.colour);
+            }
+      };
+	</script>
 </body>
 </html>
